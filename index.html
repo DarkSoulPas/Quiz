@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spot the Error - Prepositions Quiz</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+    <style>
+      body {
+        background: linear-gradient(135deg, #4a0e4e, #81379b);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: Arial, sans-serif;
+      }
+      .quiz-container {
+        background-color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        width: 90%;
+        max-width: 600px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+      .option {
+        transition: all 0.3s ease;
+      }
+      .option:hover {
+        background-color: #f0f0f0;
+      }
+      .option.selected {
+        background-color: #ff6b6b;
+        color: white;
+      }
+      .next-btn {
+        background-color: #ff6b6b;
+        color: white;
+        padding: 0.5rem 2rem;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+      }
+      .next-btn:hover {
+        background-color: #ff5252;
+      }
+      .timer {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background-color: rgba(255, 255, 255, 0.2);
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        color: white;
+      }
+      .score {
+        position: absolute;
+        top: 20px;
+        right: 120px;
+        background-color: rgba(255, 255, 255, 0.2);
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        color: white;
+      }
+      .bubble {
+        position: absolute;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle at 30% 30%,
+          rgba(255, 255, 255, 0.1),
+          rgba(255, 255, 255, 0)
+        );
+        animation: float 6s infinite ease-in-out;
+      }
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="timer" id="timer">00:00</div>
+    <div class="score" id="score">Score: 0</div>
+    <div class="quiz-container">
+      <h1 class="text-3xl font-bold mb-6 text-center">
+        Spot the Error - Prepositions
+      </h1>
+      <div id="quiz-content"></div>
+      <div id="result" class="hidden mt-6"></div>
+    </div>
+
+    <script>
+      const quizData = [
+        {
+          question:
+            "The Director didn't allow (1)/ any journalist to (2)/ enter into the college campus (3)/ No Error(4)",
+          correctAnswer: 2,
+          explanation:
+            "The correct sentence should be: 'The Director didn't allow any journalist to enter the college campus.' The preposition 'into' is unnecessary here.",
+        },
+        {
+          question:
+            "The famous actress (1)/ married with(2)/ a high profile businessman (3)/ No Error (4)",
+          correctAnswer: 2,
+          explanation:
+            "The correct sentence should be: 'The famous actress married a high profile businessman.' The preposition 'with' is not needed after 'married' in this context.",
+        },
+        {
+          question:
+            "A delegation is meeting the PM (1)/ this evening to discuss about (2)/ the solutions to new economic challenges(3)/ No Error (4)",
+          correctAnswer: 2,
+          explanation:
+            "The correct sentence should be: 'A delegation is meeting the PM this evening to discuss the solutions to new economic challenges.' The preposition 'about' is unnecessary after 'discuss'.",
+        },
+        {
+          question:
+            "Police are investigating into (1)/ the matter to rule out (2)/ any antinational activities (3)/ No Error(4)",
+          correctAnswer: 1,
+          explanation:
+            "The correct sentence should be: 'Police are investigating the matter to rule out any antinational activities.' The preposition 'into' is unnecessary after 'investigating'.",
+        },
+        {
+          question:
+            "Despite of repeated warnings(1)/ Rahul comes late to the class,(2)/ complained the Class Teacher(3)/ No Error(4)",
+          correctAnswer: 1,
+          explanation:
+            "The correct sentence should be: 'Despite repeated warnings, Rahul comes late to the class, complained the Class Teacher.' The preposition 'of' is unnecessary after 'Despite'.",
+        },
+      ];
+
+      let currentQuestion = 0;
+      let score = 0;
+      let timer;
+      let seconds = 0;
+
+      function startTimer() {
+        timer = setInterval(() => {
+          seconds++;
+          const minutes = Math.floor(seconds / 60);
+          const remainingSeconds = seconds % 60;
+          document.getElementById("timer").textContent = `${minutes
+            .toString()
+            .padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
+        }, 1000);
+      }
+
+      function displayQuestion() {
+        const questionData = quizData[currentQuestion];
+        const quizContent = document.getElementById("quiz-content");
+
+        quizContent.innerHTML = `
+                <p class="mb-4 text-lg font-semibold">Question ${
+                  currentQuestion + 1
+                } to ${quizData.length}</p>
+                <p class="mb-6 text-xl">${questionData.question}</p>
+                <div class="space-y-3">
+                    ${[1, 2, 3, 4]
+                      .map(
+                        (option) => `
+                        <div class="option p-3 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200 transition" onclick="selectOption(this, ${option})">
+                            Option ${option}
+                        </div>
+                    `
+                      )
+                      .join("")}
+                </div>
+                <button onclick="checkAnswer()" class="next-btn mt-6 w-full py-3 text-lg font-semibold rounded-lg transition" disabled>Next</button>
+            `;
+      }
+
+      function selectOption(element, option) {
+        document
+          .querySelectorAll(".option")
+          .forEach((el) => el.classList.remove("selected"));
+        element.classList.add("selected");
+        document.querySelector(".next-btn").disabled = false;
+      }
+
+      function checkAnswer() {
+        const selectedOption = document.querySelector(".option.selected");
+        if (!selectedOption) return;
+
+        const selected =
+          Array.from(selectedOption.parentNode.children).indexOf(
+            selectedOption
+          ) + 1;
+        const questionData = quizData[currentQuestion];
+
+        if (selected === questionData.correctAnswer) {
+          score++;
+          document.getElementById("score").textContent = `Score: ${score}`;
+        }
+
+        currentQuestion++;
+
+        if (currentQuestion < quizData.length) {
+          displayQuestion();
+        } else {
+          showResult();
+        }
+      }
+
+      function showResult() {
+        clearInterval(timer);
+        const quizContent = document.getElementById("quiz-content");
+        const resultDiv = document.getElementById("result");
+
+        quizContent.innerHTML = "";
+        resultDiv.classList.remove("hidden");
+
+        const percentage = (score / quizData.length) * 100;
+        const passed = percentage >= 60;
+
+        resultDiv.innerHTML = `
+                <h2 class="text-2xl font-bold mb-4">Quiz Results</h2>
+                <p class="text-xl mb-4">Your score: ${score} out of ${
+          quizData.length
+        } (${percentage.toFixed(2)}%)</p>
+                <p class="text-xl mb-6 ${
+                  passed ? "text-green-600" : "text-red-600"
+                }">${
+          passed
+            ? "Congratulations! You passed."
+            : "Sorry, you did not pass. Keep practicing!"
+        }</p>
+                <h3 class="text-xl font-semibold mb-4">Detailed Results:</h3>
+                ${quizData
+                  .map(
+                    (question, index) => `
+                    <div class="mb-4 p-4 bg-gray-100 rounded-lg">
+                        <p class="font-semibold">Question ${index + 1}:</p>
+                        <p>${question.question}</p>
+                        <p class="mt-2"><strong>Correct Answer:</strong> Option ${
+                          question.correctAnswer
+                        }</p>
+                        <p class="mt-2"><strong>Explanation:</strong> ${
+                          question.explanation
+                        }</p>
+                    </div>
+                `
+                  )
+                  .join("")}
+                <button onclick="location.reload()" class="next-btn mt-6 w-full py-3 text-lg font-semibold rounded-lg transition">Restart Quiz</button>
+            `;
+      }
+
+      function createBubbles() {
+        const bubbleCount = 10;
+        for (let i = 0; i < bubbleCount; i++) {
+          const bubble = document.createElement("div");
+          bubble.classList.add("bubble");
+          bubble.style.width = `${Math.random() * 100 + 50}px`;
+          bubble.style.height = bubble.style.width;
+          bubble.style.left = `${Math.random() * 100}vw`;
+          bubble.style.top = `${Math.random() * 100}vh`;
+          bubble.style.animationDelay = `${Math.random() * 2}s`;
+          document.body.appendChild(bubble);
+        }
+      }
+
+      window.onload = () => {
+        displayQuestion();
+        startTimer();
+        createBubbles();
+      };
+    </script>
+  </body>
+</html>
